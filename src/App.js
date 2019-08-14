@@ -22,6 +22,10 @@ class App extends Component {
     //this.getNewTodoList();
   }
 
+  componentDidUpdate() {
+
+  }
+
   createSubscription = async () => {
     this.query = new Parse.Query('message');
 
@@ -29,6 +33,7 @@ class App extends Component {
       let subscription = await this.query.subscribe();
       let result = await this.query.ascending('createdAt').limit(25).find();
       this.messages = new Set(result);
+
 
 
       // this event is triggered if successfully connected
@@ -84,47 +89,44 @@ class App extends Component {
     }
   }
 
-  getNewTodoList = async () => {
-    const newTodosList = [
-      ...this.messages
-    ];
-
+  getNewTodoList = () => {
     this.setState({
-      todosList: newTodosList
+      todosList: [...this.messages]
     });
   }
 
   updateTodo = event => {
-    const test = [...this.state.todosList];
-
-    test.forEach(e => {
-      if(e.id === event.target.id) {
+    this.state.todosList.forEach(e => {
+      if (e.id === event.target.id) {
         e.set('completed', event.target.checked);
         e.save();
       }
     });
+    console.log('update?');
   }
 
   deleteChecked = () => {
-    const test = [...this.state.todosList];
-
-    test.forEach(e => {
-      if(e.get('completed')) {
+    this.state.todosList.forEach(e => {
+      if (e.get('completed')) {
         e.destroy();
       }
     });
   }
 
   deleteAll = () => {
-    const test = [...this.state.todosList];
-
-    test.forEach(e => {
+    this.state.todosList.forEach(e => {
       e.destroy();
     });
   }
 
   displayTodosList = () => {
+    console.log('getting here?');
+
+    
+
     return this.state.todosList.map(message => {
+      console.log(message.get('completed'));
+
       return (
         <li key={message.id}>
           <label htmlFor={message.id}>{message.get('name')}</label>
@@ -132,11 +134,13 @@ class App extends Component {
             type="checkbox"
             name={message.get('name')}
             id={message.id}
-            onChange={this.updateTodo} 
-            defaultChecked={message.get('completed')}/>
+            onChange={this.updateTodo}
+            
+            checked={message.get('completed')} />
         </li>
       );
     });
+
   }
 
   render() {
